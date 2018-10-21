@@ -1,0 +1,9 @@
+CL3O Funds Tasks
+================
+[Done] Prediction probabilities for 2016 data to Andy for cross-verification of results
+- Verify the back adjusted dates provided by Derek
+- Extract the source code from jupyter notebooks
+- Build and evaluate the model with
+  - non-backadjusted data (2010-2018)
+  - with open at 10:05
+- Integration with Firebase to read the data and produce the results at 10 am every morning
