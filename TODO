@@ -1,15 +1,36 @@
 CL3O Funds Tasks
 ================
 - Build a model that suits for 2017-2018 data
--- using Prophet to forecast into future, cross validation and evaluation
--- analyze the % change distributions for a reasonable threshold that holds till 2018
+-- Modify functions to parametrize the model to run on configurable number of lookout period
+[Done] Try longer time horizons with higher profit percentages
+-- Use Prophet predictions as a feature
+-- ichimoku analysis & generate features based on signal crossovers and trend reversals
 -- use incremental training for the testing data frame- train end of every month
 
+[Done] analyze the % change distributions for a reasonable threshold that holds till 2018
+[Done] using Prophet to forecast into future, cross validation and evaluation
 [Done] Prediction probabilities for 2016 data to Andy for cross-verification of results
 [Done] Verify the back adjusted dates provided by Derek
 [Done] Test the hypothesis of market volatility in first 5-10 mins
 [Done] Build and evaluate the model with
   [Done] non-backadjusted data (2010-2018)
-- Extract the source code from jupyter notebooks
+[Done] Extract the source code from jupyter notebooks
+[NoNeed] Integration with Firebase to read the data and produce the results at 10 am every morning
 - Incorporation of additional data sources like usd-myr and soyabean prices
-- Integration with Firebase to read the data and produce the results at 10 am every morning
+
+Eval Scores
+-===========
+CV scores for 5 day period and 2% threshold
+(short cv auc, long cv auc, short returns, long returns)
+2015-2017: 0.5 & 0.53
+2014-2017: 0.53 & 0.57
+2013-2017: 0.54 & 0.54
+2012-2017: 0.54 & 0.55
+2011-2017: 0.54 & 0.51
+
+CV scores for 5 day period and 1.5% threshold
+2015-2017: 0.5 & 0.52
+2014-2017: 0.57 & 0.53
+2013-2017: 0.54 & 0.57
+2012-2017: 0.55 & 0.54
+2011-2017: 0.51 & 0.49
