@@ -1,0 +1,46 @@
+###################model duration(secs):215.756027################################## 
+train_start:2014-01-01, train_end:2016-12-31, test_start:2017-01-01, test_end:2017-12-31
+
+Short Model CV AUC::0.42
+Short Model:: XGB precision : 0.48, recall: 0.44 auc: 0.63
+Short Model Final Return:85460.25000000007, and Draw Down::64864.5,54115.5,0.17
+
+
+Long Model CV AUC::0.49
+Long Model:: XGB precision : 0.21, recall: 0.18 auc: 0.5
+Long Model Final Return:-31402.750000000015, and Draw Down::18576.75,-31402.75,2.69
+###################model duration(secs):224.645383##################################
+train_start:2015-01-01, train_end:2017-12-31, test_start:2018-01-01, test_end:2018-10-01
+
+Short Model CV AUC::0.58
+Short Model:: XGB precision : 0.27, recall: 0.33 auc: 0.46
+Short Model Final Return:15071.750000000013, and Draw Down::16430.5,5860.75,0.64
+
+
+Long Model CV AUC::0.52
+Long Model:: XGB precision : 0.27, recall: 0.25 auc: 0.59
+Long Model Final Return:17302.000000000022, and Draw Down::13966.0,8119.5,0.42
+
+################### model duration(secs):295.487757 ##################################
+train_start:2014-01-01, train_end:2017-12-31, test_start:2018-01-01, test_end:2018-10-01
+
+Short Model CV AUC::0.59
+Short Model:: XGB precision : 0.21, recall: 0.4 auc: 0.34
+Short Model Final Return:14817.500000000011, and Draw Down::22382.25,5995.25,0.73
+
+
+Long Model CV AUC::0.55
+Long Model:: XGB precision : 0.5, recall: 0.12 auc: 0.38
+Long Model Final Return:18826.000000000007, and Draw Down::18896.0,18161.0,0.04
+
+################### model duration(secs):436.706672 ################################## 
+train_start:2013-01-01, train_end:2017-12-31, test_start:2018-01-01, test_end:2018-10-01
+
+Short Model CV AUC::0.55
+Short Model:: XGB precision : 0.14, recall: 0.18 auc: 0.29
+Short Model Final Return:-3896.249999999989, and Draw Down::20941.0,-3896.25,1.19
+
+
+Long Model CV AUC::0.59
+Long Model:: XGB precision : 0.15, recall: 0.06 auc: 0.39
+Long Model Final Return:967.2500000000073, and Draw Down::13896.25,967.25,0.93

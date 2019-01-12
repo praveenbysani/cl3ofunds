@@ -1,0 +1,66 @@
+###################model duration(secs):427.017805################################## 
+train_start:2012-01-01, train_end:2016-12-31, test_start:2017-01-01, test_end:2017-12-31
+
+Short Model CV AUC::0.54
+Short Model:: XGB precision : 0.49, recall: 0.61 auc: 0.52
+Short Model Final Return:16600.124999999654, and Draw Down::24121.25,4503.25,0.81
+
+
+Long Model CV AUC::0.53
+Long Model:: XGB precision : 0.43, recall: 0.23 auc: 0.5
+Long Model Final Return:7529.125000000153, and Draw Down::18454.19,-32.62,1.0
+###################model duration(secs):385.20575################################## 
+train_start:2013-01-01, train_end:2016-12-31, test_start:2017-01-01, test_end:2017-12-31
+
+Short Model CV AUC::0.57
+Short Model:: XGB precision : 0.48, recall: 0.59 auc: 0.5
+Short Model Final Return:24754.124999999687, and Draw Down::25611.0,6777.0,0.74
+
+
+Long Model CV AUC::0.54
+Long Model:: XGB precision : 0.35, recall: 0.17 auc: 0.5
+Long Model Final Return:-15193.624999999876, and Draw Down::12740.69,-16201.56,2.27
+###################model duration(secs):228.439331################################## 
+train_start:2014-01-01, train_end:2016-12-31, test_start:2017-01-01, test_end:2017-12-31
+
+Short Model CV AUC::0.53
+Short Model:: XGB precision : 0.45, recall: 0.45 auc: 0.51
+Short Model Final Return:15340.999999999738, and Draw Down::16494.31,-4257.63,1.26
+
+
+Long Model CV AUC::0.5
+Long Model:: XGB precision : 0.5, recall: 0.38 auc: 0.58
+Long Model Final Return:-2925.8124999997344, and Draw Down::14974.56,-22327.62,2.49
+###################model duration(secs):428.661799################################## 
+train_start:2013-01-01, train_end:2017-12-31, test_start:2018-01-01, test_end:2018-10-01
+
+Short Model CV AUC::0.56
+Short Model:: XGB precision : 0.35, recall: 0.52 auc: 0.37
+Short Model Final Return:14548.624999999885, and Draw Down::29225.87,14548.62,0.5
+
+
+Long Model CV AUC::0.56
+Long Model:: XGB precision : 0.42, recall: 0.19 auc: 0.58
+Long Model Final Return:8970.312500000044, and Draw Down::15153.0,7501.31,0.5
+###################model duration(secs):324.654038################################## 
+train_start:2014-01-01, train_end:2017-12-31, test_start:2018-01-01, test_end:2018-10-01
+
+Short Model CV AUC::0.54
+Short Model:: XGB precision : 0.42, recall: 0.81 auc: 0.48
+Short Model Final Return:25096.312499999785, and Draw Down::30285.31,19579.87,0.35
+
+
+Long Model CV AUC::0.55
+Long Model:: XGB precision : 0.5, recall: 0.11 auc: 0.53
+Long Model Final Return:12252.562500000015, and Draw Down::13033.25,10943.25,0.16
+###################model duration(secs):230.844441################################## 
+train_start:2015-01-01, train_end:2017-12-31, test_start:2018-01-01, test_end:2018-10-01
+
+Short Model CV AUC::0.5
+Short Model:: XGB precision : 0.47, recall: 0.79 auc: 0.57
+Short Model Final Return:31224.437499999844, and Draw Down::35884.12,25248.0,0.3
+
+
+Long Model CV AUC::0.55
+Long Model:: XGB precision : 0.46, recall: 0.2 auc: 0.59
+Long Model Final Return:12915.812500000025, and Draw Down::14044.13,10105.56,0.28
