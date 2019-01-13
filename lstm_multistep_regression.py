@@ -1,5 +1,5 @@
 import os
-os.chdir('/Users/praveen/Documents/Pythonspace/futures_trading/')
+os.chdir('/Users/praveen/Documents/Pythonspace/cl3ofunds/')
 import matplotlib.pylab as plt
 import numpy as np
 import pandas as pd
@@ -82,7 +82,7 @@ def data2change(data):
     change = pd.DataFrame(data).pct_change()
     change = change.replace([np.inf, -np.inf], np.nan)
     change = change.fillna(0.).values.tolist()
-    change = [c[0] for c in change]
+    change = [c[0]*100 for c in change]
     return change
 
 def rolling_zscore(x, window):
@@ -94,7 +94,7 @@ def rolling_zscore(x, window):
 
 
 WINDOW = 30
-EMB_SIZE = 5
+EMB_SIZE = 1
 STEP = 1
 FORECAST = 5
 
@@ -118,10 +118,11 @@ lowp_norm = rolling_zscore(lowp,WINDOW).tolist()
 closep_norm = rolling_zscore(closep,WINDOW).tolist()
 volumep_norm = rolling_zscore(volumep,WINDOW).tolist()
 
-volatility = []
-for i in range(WINDOW, len(openp_chng)):
-    window = closep[i-WINDOW:i]
-    volatility.append(np.std(window))
+#volatility = []
+#for i in range(WINDOW, len(openp_chng)):
+#    window = closep[i-WINDOW:i]
+#    volatility.append(np.std(window))
+
 #rscaler=RobustScaler()
 #volatility=rscaler.fit_transform(pd.DataFrame(volatility)).reshape(1,-1)[0]
 
@@ -132,6 +133,7 @@ for i in range(WINDOW, len(openp_chng)):
 
 #plt.plot(pd.Series(highp_chng).rolling(WINDOW).sum())
 openp_norm, highp_norm, lowp_norm, closep_norm, volumep_norm = openp_norm[WINDOW:], highp_norm[WINDOW:], lowp_norm[WINDOW:], closep_norm[WINDOW:], volumep_norm[WINDOW:]
+closep_chng = closep_chng[WINDOW:]
 X, Y = [], []
 for i in range(0, len(openp_norm)-WINDOW-FORECAST, STEP):
     try:
@@ -139,14 +141,17 @@ for i in range(0, len(openp_norm)-WINDOW-FORECAST, STEP):
         h = highp_norm[i:i+WINDOW]
         l = lowp_norm[i:i+WINDOW]
         c = closep_norm[i:i+WINDOW]
+        #c = closep_chng[i:i+WINDOW]
         v = volumep_norm[i:i+WINDOW]
 
         #volat = volatility[i:i+WINDOW]
         #r = daily_returns[i:i+WINDOW]
-        x_i = np.column_stack(( o, h, l, c, v))
+        #x_i = np.column_stack(( o, h, l, c, v))
+        x_i = np.array(c)
         y_i =np.array(closep_norm[i+WINDOW:i+WINDOW+FORECAST])
+        #y_i =np.array(closep_chng[i+WINDOW:i+WINDOW+FORECAST])
         #y_i =closep_norm[i+WINDOW+FORECAST]
-        #x_i = c
+
     except Exception as e:
         print(e)
         break
@@ -159,7 +164,7 @@ X_train, X_test, Y_train, Y_test = create_Xt_Yt(X, Y)
 X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], EMB_SIZE))
 X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], EMB_SIZE))
 
-def build_cnn_model(WINDOW,EMB_SIZE):
+def build_cnn_model(WINDOW,EMB_SIZE,FORECAST):
     cnn_model = Sequential()
     cnn_model.add(Conv1D(input_shape = (WINDOW, EMB_SIZE),
                             filters=16,
@@ -177,7 +182,7 @@ def build_cnn_model(WINDOW,EMB_SIZE):
     cnn_model.add(Dense(32))
     cnn_model.add(LeakyReLU())
 
-    cnn_model.add(Dense(2))
+    cnn_model.add(Dense(FORECAST))
     cnn_model.add(Activation('linear'))
 
     opt = Nadam(lr=0.002)
@@ -186,7 +191,7 @@ def build_cnn_model(WINDOW,EMB_SIZE):
     checkpointer = ModelCheckpoint(filepath="lolkekr.hdf5", verbose=1, save_best_only=True)
 
     cnn_model.compile(optimizer=opt,
-                  loss=mse_log)
+                  loss='mse')
     return cnn_model
 
 def build_lstm_model(WINDOW,EMB_SIZE,FORECAST):
@@ -203,27 +208,26 @@ def build_lstm_model(WINDOW,EMB_SIZE,FORECAST):
                   loss='mse')
     return lstm_model
 
-model=build_lstm_model(WINDOW,EMB_SIZE,FORECAST)
+model=build_cnn_model(WINDOW,EMB_SIZE,FORECAST)
 
 try:
     history = model.fit(X_train, Y_train,
-              epochs = 30,
+              epochs = 50,
               batch_size = 256,
               verbose=1,
               validation_data=(X_test, Y_test),
               #callbacks=[reduce_lr, checkpointer],
               shuffle=True)
 except Exception as e:
-    print e
+    print(e)
 finally:
 #    model.load_weights("lolkekr.hdf5")
-    pred = model.predict(X_test)
-    predicted = pred
+    predicted = model.predict(X_test)
     original = Y_test
     plt.figure(figsize=(10,10))
     plt.title('Actual and predicted')
-    plt.plot(original[10], color='black', label = 'Original data')
-    plt.plot(predicted[10], color='blue', label = 'Predicted data')
+    plt.plot(original[33], color='black', label = 'Original data')
+    plt.plot(predicted[33], color='blue', label = 'Predicted data')
     plt.legend(loc='best')
     plt.show()
     print( np.mean(np.square(predicted - original)))
