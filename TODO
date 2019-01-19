@@ -1,17 +1,15 @@
 CL3O Funds Tasks
 ================
 - Build a model that suits for 2017-2018 data
--- use the previous day return as a feature
--- use feature selection methods to remove highly correlated features
+* Use Intraday Trend following strategies (5 min intervals) based on macd and bollinger bands
+* Use Prophet predictions as a feature
+* ichimoku analysis & generate features based on signal crossovers and trend reversals
+
+
 [Done] Reframe the problem as Regression to predict the (long_spread)-(short_spread) difference
 [Done] Use LSTM models to get pointwise, full sequence and multiple sequence predictions (volatility)
 [Done] Modify functions to parametrize the model to run on configurable number of lookout period
 [Done] Try longer time horizons with higher profit percentages
-
--- Use Prophet predictions as a feature
--- ichimoku analysis & generate features based on signal crossovers and trend reversals
--- use incremental training for the testing data frame- train end of every month
-
 [Done] analyze the % change distributions for a reasonable threshold that holds till 2018
 [Done] using Prophet to forecast into future, cross validation and evaluation
 [Done] Prediction probabilities for 2016 data to Andy for cross-verification of results

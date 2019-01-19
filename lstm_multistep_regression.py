@@ -1,24 +1,41 @@
-import matplotlib.pylab as plt
+import os
 import numpy as np
 import pandas as pd
+import random
+from sklearn.preprocessing import RobustScaler
+import matplotlib.pylab as plt
+import seaborn as sns
+
+os.environ['PYTHONHASHSEED']=str(22)
+random.seed(22)
+np.random.seed(22)
+
+
+import tensorflow as tf
+from tensorflow import set_random_seed
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers.recurrent import LSTM, GRU
 from keras.layers import Conv1D, MaxPooling1D, AtrousConvolution1D, RepeatVector
 from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, CSVLogger
 from keras.layers.wrappers import Bidirectional
-from keras import regularizers
 from keras.layers.normalization import BatchNormalization
 from keras.layers.advanced_activations import *
 from keras.optimizers import RMSprop, Adam, SGD, Nadam
 from keras.initializers import *
 from keras.constraints import *
-from sklearn.preprocessing import RobustScaler
+from keras import regularizers
 from keras import backend as K
 from keras.utils import plot_model
-import seaborn as sns
-sns.despine()
 
+
+set_random_seed(22)
+session_conf = tf.ConfigProto(intra_op_parallelism_threads=1,
+                              inter_op_parallelism_threads=1)
+sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
+K.set_session(sess)
+
+sns.despine()
 
 def shuffle_in_unison(a, b):
     # courtsey http://stackoverflow.com/users/190280/josh-bleecher-snyder
@@ -91,19 +108,20 @@ def rolling_zscore(x, window):
     z = (x-m)/s
     return z.bfill()
 
+
 def build_cnn_model(WINDOW,EMB_SIZE,FORECAST):
     cnn_model = Sequential()
     cnn_model.add(Conv1D(input_shape = (WINDOW, EMB_SIZE),
-                            filters=16,
+                            filters=32,
                             kernel_size=4,
                             padding='same'))
-    cnn_model.add(MaxPooling1D(2))
     cnn_model.add(LeakyReLU())
+    cnn_model.add(MaxPooling1D(2))
     cnn_model.add(Conv1D(filters=32,
                             kernel_size=4,
                             padding='same'))
-    cnn_model.add(MaxPooling1D(2))
     cnn_model.add(LeakyReLU())
+    cnn_model.add(MaxPooling1D(2))
     cnn_model.add(Flatten())
 
     cnn_model.add(Dense(32))
@@ -112,11 +130,10 @@ def build_cnn_model(WINDOW,EMB_SIZE,FORECAST):
     cnn_model.add(Dense(FORECAST))
     cnn_model.add(Activation('linear'))
 
-    opt = Nadam(lr=0.002)
+    opt = Nadam(lr=0.003)
 
-    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=25, min_lr=0.000001, verbose=1)
-    checkpointer = ModelCheckpoint(filepath="lolkekr.hdf5", verbose=1, save_best_only=True)
-
+    #reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=25, min_lr=0.000001, verbose=1)
+    #checkpointer = ModelCheckpoint(filepath="lolkekr.hdf5", verbose=1, save_best_only=True)
     cnn_model.compile(optimizer=opt,
                   loss='mse')
     return cnn_model
@@ -137,11 +154,11 @@ def build_lstm_model(WINDOW,EMB_SIZE,FORECAST):
 
 
 WINDOW = 30
-EMB_SIZE = 5
+EMB_SIZE = 2
 STEP = 1
 FORECAST = 5
 
-data_original = pd.read_csv('./data/fcpo_daily_2018.csv')
+data_original = pd.read_csv('./data/fcpo_daily_2010_2018.csv')
 data_norm = data_original[['Open','High','Low','Close','Volume']]
 rscaler=RobustScaler()
 data_scaled=rscaler.fit_transform(data_norm)
@@ -187,7 +204,7 @@ for i in range(0, len(openp_norm)-WINDOW-FORECAST, STEP):
         v = volumep_norm[i:i+WINDOW]
 
         #volat = volatility[i:i+WINDOW]
-        x_i = np.column_stack(( o, h, l, c, v))
+        x_i = np.column_stack(( c, v))
         #x_i = np.array(c)
         y_i =np.array(closep_norm[i+WINDOW:i+WINDOW+FORECAST])
         #y_i =closep_norm[i+WINDOW+FORECAST]
@@ -204,28 +221,40 @@ X_train, X_test, Y_train, Y_test = create_Xt_Yt(X, Y)
 X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], EMB_SIZE))
 X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], EMB_SIZE))
 
-model=build_cnn_model(WINDOW,EMB_SIZE,FORECAST)
+
 
 #plot_model(model,to_file='model.png')
-
+model=build_cnn_model(WINDOW,EMB_SIZE,FORECAST)
 history = model.fit(X_train, Y_train,
-          epochs = 100,
-          batch_size = 256,
+          epochs = 50,
+          batch_size = 250,
           verbose=0,
           validation_data=(X_test, Y_test),
           #callbacks=[reduce_lr, checkpointer],
-          shuffle=True)
+          shuffle=False)
 
 predicted = model.predict(X_test)
 original = Y_test
+corr_coeffs= []
+for i in range(len(original)):
+    corr_coeffs.append(np.corrcoef(original[i],predicted[i])[0][1])
+np.median(corr_coeffs)
+
 
 plt.figure(figsize=(10,10))
 plt.title('Actual and predicted')
-plt.plot(original[130], color='black', label = 'Original data')
-plt.plot(predicted[130], color='blue', label = 'Predicted data')
+plt.plot(original[10], color='black', label = 'Original data')
+plt.plot(predicted[10], color='blue', label = 'Predicted data')
 plt.legend(loc='best')
 plt.show()
 
 #print( np.mean(np.square(predicted - original)))
 #print (np.mean(np.abs(predicted - original)))
 #print( np.mean(np.abs((original - predicted) / original)))
+plt.figure(figsize=(10,10))
+plt.plot(history.history['loss'],label='loss')
+plt.plot(history.history['val_loss'],label='val_loss')
+plt.legend()
+
+
+print(hash("keras"))
