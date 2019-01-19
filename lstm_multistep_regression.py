@@ -1,5 +1,3 @@
-import os
-os.chdir('/Users/praveen/Documents/Pythonspace/cl3ofunds/')
 import matplotlib.pylab as plt
 import numpy as np
 import pandas as pd
@@ -17,6 +15,7 @@ from keras.initializers import *
 from keras.constraints import *
 from sklearn.preprocessing import RobustScaler
 from keras import backend as K
+from keras.utils import plot_model
 import seaborn as sns
 sns.despine()
 
@@ -92,78 +91,6 @@ def rolling_zscore(x, window):
     z = (x-m)/s
     return z.bfill()
 
-
-WINDOW = 30
-EMB_SIZE = 1
-STEP = 1
-FORECAST = 5
-
-data_original = pd.read_csv('./data/fcpo_daily_2018.csv')
-
-openp = data_original.loc[:, 'Open']
-highp = data_original.loc[:, 'High']
-lowp = data_original.loc[:, 'Low']
-closep = data_original.loc[:, 'Close']
-volumep = data_original.loc[:, 'Volume']
-
-openp_chng=data2change(openp)
-highp_chng=data2change(highp)
-lowp_chng=data2change(lowp)
-closep_chng=data2change(closep)
-volumep_chng=data2change(volumep)
-
-openp_norm = rolling_zscore(openp,WINDOW).tolist()
-highp_norm = rolling_zscore(highp,WINDOW).tolist()
-lowp_norm = rolling_zscore(lowp,WINDOW).tolist()
-closep_norm = rolling_zscore(closep,WINDOW).tolist()
-volumep_norm = rolling_zscore(volumep,WINDOW).tolist()
-
-#volatility = []
-#for i in range(WINDOW, len(openp_chng)):
-#    window = closep[i-WINDOW:i]
-#    volatility.append(np.std(window))
-
-#rscaler=RobustScaler()
-#volatility=rscaler.fit_transform(pd.DataFrame(volatility)).reshape(1,-1)[0]
-
-#daily_returns = []
-#for i in range(0, len(data_original)):
-#    return_pct = (closep[i] - openp[i])/(openp[i])
-#    daily_returns.append(np.clip(return_pct,-2,2))
-
-#plt.plot(pd.Series(highp_chng).rolling(WINDOW).sum())
-openp_norm, highp_norm, lowp_norm, closep_norm, volumep_norm = openp_norm[WINDOW:], highp_norm[WINDOW:], lowp_norm[WINDOW:], closep_norm[WINDOW:], volumep_norm[WINDOW:]
-closep_chng = closep_chng[WINDOW:]
-X, Y = [], []
-for i in range(0, len(openp_norm)-WINDOW-FORECAST, STEP):
-    try:
-        o = openp_norm[i:i+WINDOW]
-        h = highp_norm[i:i+WINDOW]
-        l = lowp_norm[i:i+WINDOW]
-        c = closep_norm[i:i+WINDOW]
-        #c = closep_chng[i:i+WINDOW]
-        v = volumep_norm[i:i+WINDOW]
-
-        #volat = volatility[i:i+WINDOW]
-        #r = daily_returns[i:i+WINDOW]
-        #x_i = np.column_stack(( o, h, l, c, v))
-        x_i = np.array(c)
-        y_i =np.array(closep_norm[i+WINDOW:i+WINDOW+FORECAST])
-        #y_i =np.array(closep_chng[i+WINDOW:i+WINDOW+FORECAST])
-        #y_i =closep_norm[i+WINDOW+FORECAST]
-
-    except Exception as e:
-        print(e)
-        break
-    X.append(x_i)
-    Y.append(y_i)
-
-
-X, Y = np.array(X), np.array(Y)
-X_train, X_test, Y_train, Y_test = create_Xt_Yt(X, Y)
-X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], EMB_SIZE))
-X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], EMB_SIZE))
-
 def build_cnn_model(WINDOW,EMB_SIZE,FORECAST):
     cnn_model = Sequential()
     cnn_model.add(Conv1D(input_shape = (WINDOW, EMB_SIZE),
@@ -208,28 +135,97 @@ def build_lstm_model(WINDOW,EMB_SIZE,FORECAST):
                   loss='mse')
     return lstm_model
 
+
+WINDOW = 30
+EMB_SIZE = 5
+STEP = 1
+FORECAST = 5
+
+data_original = pd.read_csv('./data/fcpo_daily_2018.csv')
+data_norm = data_original[['Open','High','Low','Close','Volume']]
+rscaler=RobustScaler()
+data_scaled=rscaler.fit_transform(data_norm)
+data_scaled=pd.DataFrame(data_scaled,columns=data_norm.columns)
+
+openp = data_scaled.loc[:, 'Open']
+highp = data_scaled.loc[:, 'High']
+lowp = data_scaled.loc[:, 'Low']
+closep = data_scaled.loc[:, 'Close']
+volumep = data_scaled.loc[:, 'Volume']
+
+#openp_chng=data2change(openp)
+#highp_chng=data2change(highp)
+#lowp_chng=data2change(lowp)
+#closep_chng=data2change(closep)
+#volumep_chng=data2change(volumep)
+
+#openp_norm = rolling_zscore(openp,WINDOW).tolist()
+#highp_norm = rolling_zscore(highp,WINDOW).tolist()
+#lowp_norm = rolling_zscore(lowp,WINDOW).tolist()
+#closep_norm = rolling_zscore(closep,WINDOW).tolist()
+#volumep_norm = rolling_zscore(volumep,WINDOW).tolist()
+
+#daily_returns = []
+#for i in range(0, len(data_original)):
+#    return_pct = (closep[i] - openp[i])/(openp[i])
+#    daily_returns.append(np.clip(return_pct,-2,2))
+
+volatility = []
+for i in range(WINDOW, len(openp)):
+    window = closep[i-WINDOW:i]
+    volatility.append(np.std(window))
+
+openp_norm, highp_norm, lowp_norm, closep_norm, volumep_norm = openp[WINDOW:], highp[WINDOW:], lowp[WINDOW:], closep[WINDOW:], volumep[WINDOW:]
+
+X, Y = [], []
+for i in range(0, len(openp_norm)-WINDOW-FORECAST, STEP):
+    try:
+        o = openp_norm[i:i+WINDOW]
+        h = highp_norm[i:i+WINDOW]
+        l = lowp_norm[i:i+WINDOW]
+        c = closep_norm[i:i+WINDOW]
+        v = volumep_norm[i:i+WINDOW]
+
+        #volat = volatility[i:i+WINDOW]
+        x_i = np.column_stack(( o, h, l, c, v))
+        #x_i = np.array(c)
+        y_i =np.array(closep_norm[i+WINDOW:i+WINDOW+FORECAST])
+        #y_i =closep_norm[i+WINDOW+FORECAST]
+
+    except Exception as e:
+        print(e)
+        break
+    X.append(x_i)
+    Y.append(y_i)
+
+
+X, Y = np.array(X), np.array(Y)
+X_train, X_test, Y_train, Y_test = create_Xt_Yt(X, Y)
+X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], EMB_SIZE))
+X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], EMB_SIZE))
+
 model=build_cnn_model(WINDOW,EMB_SIZE,FORECAST)
 
-try:
-    history = model.fit(X_train, Y_train,
-              epochs = 50,
-              batch_size = 256,
-              verbose=1,
-              validation_data=(X_test, Y_test),
-              #callbacks=[reduce_lr, checkpointer],
-              shuffle=True)
-except Exception as e:
-    print(e)
-finally:
-#    model.load_weights("lolkekr.hdf5")
-    predicted = model.predict(X_test)
-    original = Y_test
-    plt.figure(figsize=(10,10))
-    plt.title('Actual and predicted')
-    plt.plot(original[33], color='black', label = 'Original data')
-    plt.plot(predicted[33], color='blue', label = 'Predicted data')
-    plt.legend(loc='best')
-    plt.show()
-    print( np.mean(np.square(predicted - original)))
-    print (np.mean(np.abs(predicted - original)))
-    print( np.mean(np.abs((original - predicted) / original)))
+#plot_model(model,to_file='model.png')
+
+history = model.fit(X_train, Y_train,
+          epochs = 100,
+          batch_size = 256,
+          verbose=0,
+          validation_data=(X_test, Y_test),
+          #callbacks=[reduce_lr, checkpointer],
+          shuffle=True)
+
+predicted = model.predict(X_test)
+original = Y_test
+
+plt.figure(figsize=(10,10))
+plt.title('Actual and predicted')
+plt.plot(original[130], color='black', label = 'Original data')
+plt.plot(predicted[130], color='blue', label = 'Predicted data')
+plt.legend(loc='best')
+plt.show()
+
+#print( np.mean(np.square(predicted - original)))
+#print (np.mean(np.abs(predicted - original)))
+#print( np.mean(np.abs((original - predicted) / original)))
