@@ -45,13 +45,23 @@ if __name__=='__main__':
     fcpo_data=fcpo_data.set_index(pd.to_datetime(fcpo_data['Date']))
     fcpo_data=fcpo_data.drop(['Date'],axis=1)
 
-    fcpo_data_daily=prepare_daily_data(fcpo_data,lookup_period=1)
+    fcpo_data_daily=prepare_daily_data(fcpo_data,lookup_period=5)
     fcpo_daily_tind=generate_tech_ind(fcpo_data_daily[['Open','High','Low','Close','Volume']].shift(1))
     fcpo_daily_cdlind=generate_candlestick_ind(fcpo_data_daily[['Open','High','Low','Close']].shift(1))
     fcpo_feats=fcpo_daily_tind.merge(fcpo_daily_cdlind,left_index=True,right_index=True)
 
     fcpo_traindata,fcpo_trainlabels,fcpo_testdata,fcpo_testlabels=build_regression_model_data(
                             fcpo_data_daily,fcpo_feats,'long_short_spread_diff')
+
+
+    plt.figure(figsize=(10,10))
+    plt.plot(fcpo_data_daily.loc['2017-03-01':'2018-01-01','Close'])
+
+
+    plt.figure(figsize=(10,10))
+    plt.plot(fcpo_data_daily.loc['2017-03-01':'2018-01-01','Close'].rolling(15).std().bfill())
+
+
 
     from sklearn.preprocessing import RobustScaler, MinMaxScaler
     robust_scaler_labels=RobustScaler()
