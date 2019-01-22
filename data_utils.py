@@ -37,6 +37,35 @@ def compute_short_spread(x):
     return round((x['Open']-x['next_nlow'])/x['Open'],4)*100
 
 
+def transform_minute_to_daily_df(csv_file='data/FCPO_2007-2017_backadjusted.csv'):
+    fcpo_data_raw=pd.read_csv('data/FCPO_2007-2017_backadjusted.csv')
+    fcpo_data_raw=fcpo_data_raw[fcpo_data_raw['Time']!=1805]
+
+    fcpo_data_raw['Date']=fcpo_data_raw['Date'].apply(lambda x:str(x))
+    fcpo_data_raw['Hour']=fcpo_data_raw['Time'].apply(lambda x:str(x)[0:2])
+    fcpo_data_raw=fcpo_data_raw.groupby(['Date'],as_index=False).agg({'Open':lambda x: get_first_element(x),
+                              'High':lambda x:np.max(x),'Low':lambda x:np.min(x),'Close': lambda x:get_last_element(x),'Volume':'sum'})
+
+    fcpo_data_raw=fcpo_data_raw.set_index(pd.to_datetime(fcpo_data_raw['Date']))
+    fcpo_data_daily=fcpo_data_raw.drop(['Date'],axis=1)
+    return fcpo_data_daily
+
+def transform_minute_to_hourly_df(csv_file='data/FCPO_2007-2017_backadjusted.csv'):
+    fcpo_data_raw=pd.read_csv('data/FCPO_2007-2017_backadjusted.csv')
+    fcpo_data_raw=fcpo_data_raw[fcpo_data_raw['Time']!=1805]
+
+    fcpo_data_raw['Date']=fcpo_data_raw['Date'].apply(lambda x:str(x))
+    fcpo_data_raw['Hour']=fcpo_data_raw['Time'].apply(lambda x:str(x)[0:2])
+    fcpo_data_raw=fcpo_data_raw.groupby(['Date','Hour'],as_index=False).agg({'Open':lambda x: get_first_element(x),
+                              'High':lambda x:np.max(x),'Low':lambda x:np.min(x),'Close': lambda x:get_last_element(x),'Volume':'sum'})
+
+    fcpo_data_raw=fcpo_data_raw.set_index(pd.to_datetime(fcpo_data_raw['Date']+'-'+fcpo_data_raw['Hour']))
+    fcpo_data_hourly=fcpo_data_raw.drop(['Date','Hour'],axis=1)
+    fcpo_data_hourly
+    fcpo_data_hourly.tail()
+    return fcpo_data_hourly
+
+# function to generate the necessary training labels based on defined look out period and profit thresholds
 def prepare_daily_data(fcpo_data,long_spread_thr=2,short_spread_thr=2,lookup_period=5):
     # extract the highest value over the next n days and the corresponding day index
     dayn_max_value_list=[]
@@ -75,7 +104,10 @@ def prepare_daily_data(fcpo_data,long_spread_thr=2,short_spread_thr=2,lookup_per
                                 long_spread = fcpo_data.apply(lambda x: compute_long_spread(x),axis=1),
                                 short_spread = fcpo_data.apply(lambda x: compute_short_spread(x),axis=1)
                             )
-    fcpo_data=fcpo_data.assign(long_short_spread_diff= fcpo_data['long_spread']-fcpo_data['short_spread'])
+    fcpo_data=fcpo_data.assign(long_short_spread_diff= fcpo_data['long_spread']-fcpo_data['short_spread'],
+                               lprofit_ind=fcpo_data['long_spread'].apply(lambda x: 1 if x > long_spread_thr else 0),
+                               sprofit_ind=fcpo_data['short_spread'].apply(lambda x: 1 if x > short_spread_thr else 0)
+                               )
     fcpo_data['prev_open_change_pct']=fcpo_data['prev_open_change_pct'].bfill()
     return fcpo_data
 
