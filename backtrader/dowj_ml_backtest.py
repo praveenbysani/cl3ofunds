@@ -1,6 +1,7 @@
 import backtrader as bt
 import backtrader.feeds as btfeeds
 import backtrader.indicators as btind
+import backtrader.analyzers as btanalyzers
 import datetime
 import pandas as pd
 
@@ -18,10 +19,10 @@ class MLStrategy(bt.Strategy):
         dt = dt or self.datas[0].datetime.date(0)
         print('%s, %s' % (dt.isoformat(), txt))
     def notify_trade(self,trade):
-        if trade.isopen:
-            self.log('{} Trade ref:{} has been opened with size:{}, price:{} and value:{}'.format(
-                                    self.datetime.time(0),trade.ref,trade.size,trade.price,trade.value))
-        elif trade.isclosed:
+        #if trade.isopen:
+        #    self.log('{} Trade ref:{} has been opened with size:{}, price:{} and value:{}'.format(
+        #                            self.datetime.time(0),trade.ref,trade.size,trade.price,trade.value))
+        if trade.isclosed:
             self.log('Trade ref:{} has been closed with pnl:{}, new size:{}'.format(trade.ref,trade.pnl,trade.size))
 
     def notify_order(self,order):
@@ -111,12 +112,22 @@ if __name__=='__main__':
     ## disable plotting of the ML predictions
     daily_data.plotinfo.plot=False
     cerebro = bt.Cerebro()
-    cerebro.broker.setcash(100000)
+    cerebro.broker.setcash(50000)
     cerebro.adddata(data)
     cerebro.adddata(daily_data)
     cerebro.addstrategy(MLStrategy)
     #cerebro.addstrategy(TestStrategy)
     cerebro.addsizer(bt.sizers.FixedSize,stake=1)
-    cerebro.run()
-    #cerebro.plot(volume=False)
+    #add different analyzers
+    #cerebro.addanalyzer(btanalyzers.SharpeRatio, _name='sharpe')
+    cerebro.addanalyzer(btanalyzers.DrawDown,fund=False,_name='drawdown')
+    #cerebro.addanalyzer(btanalyzers.TradeAnalyzer,_name='trade_analyzer')
+    #cerebro.addanalyzer(btanalyzers.PeriodStats,_name='period_stats')
+    strats_run=cerebro.run()
+    ml_strat =strats_run[0]
     print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
+    #print(ml_strat.analyzers.trade_analyzer.print())
+    print(ml_strat.analyzers.drawdown.print())
+    #print(ml_strat.analyzers.sharpe.print())
+    #print(ml_strat.analyzers.period_stats.print())
+    cerebro.plot(volume=False)
