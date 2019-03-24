@@ -7,7 +7,8 @@ https://www.backtrader.com/docu/order-creation-execution/order-creation-executio
 https://www.backtrader.com/docu/order-creation-execution/oco/oco.html
 [Bracket Orders] to execute an order along with high side and low side
 https://www.backtrader.com/docu/order-creation-execution/bracket/bracket.html
-
+[Cancel Bracket Orders after holding period]
+https://www.backtrader.com/blog/posts/2017-04-09-multi-example/multi-example.html
 https://www.backtrader.com/blog/posts/2018-02-01-stop-trading/stop-trading.html
 
 [Feeds with Multiple Timeframes]
