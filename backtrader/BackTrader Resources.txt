@@ -1,15 +1,20 @@
 BackTrader Resources
 ====================
-Order Execution
+[Order Execution]
 https://www.backtrader.com/docu/order.html
 https://www.backtrader.com/docu/order-creation-execution/order-creation-execution.html
+[One Cancel Other Orders]
+https://www.backtrader.com/docu/order-creation-execution/oco/oco.html
+[Bracket Orders] to execute an order along with high side and low side
+https://www.backtrader.com/docu/order-creation-execution/bracket/bracket.html
+
 https://www.backtrader.com/blog/posts/2018-02-01-stop-trading/stop-trading.html
 
-Feeds with Multiple Timeframes
+[Feeds with Multiple Timeframes]
 https://www.backtrader.com/blog/posts/2015-08-23-data-resampling/data-resampling.html
 https://www.backtrader.com/docu/mixing-timeframes/indicators-mixing-timeframes.html
 
-Optimization
+[Optimization]
 https://www.backtrader.com/docu/optimization-improvements.html
 
 Evaluating external historical performance

@@ -37,8 +37,11 @@ def compute_short_spread(x):
     return round((x['Open']-x['next_nlow'])/x['Open'],4)*100
 
 
-def transform_minute_to_daily_df(csv_file='data/FCPO_2007-2017_backadjusted.csv'):
-    fcpo_data_raw=pd.read_csv('data/FCPO_2007-2017_backadjusted.csv')
+def transform_minute_to_daily_df(csv_file,df):
+    if df is None:
+        fcpo_data_raw=pd.read_csv(csv_file)
+    else:
+        fcpo_data_raw=df
     fcpo_data_raw=fcpo_data_raw[fcpo_data_raw['Time']!=1805]
 
     fcpo_data_raw['Date']=fcpo_data_raw['Date'].apply(lambda x:str(x))
@@ -50,10 +53,13 @@ def transform_minute_to_daily_df(csv_file='data/FCPO_2007-2017_backadjusted.csv'
     fcpo_data_daily=fcpo_data_raw.drop(['Date'],axis=1)
     return fcpo_data_daily
 
-def transform_minute_to_hourly_df(csv_file='data/FCPO_2007-2017_backadjusted.csv'):
-    fcpo_data_raw=pd.read_csv('data/FCPO_2007-2017_backadjusted.csv')
-    fcpo_data_raw=fcpo_data_raw[fcpo_data_raw['Time']!=1805]
+def transform_minute_to_hourly_df(csv_file,df):
+    if df is None:
+        fcpo_data_raw=pd.read_csv(csv_file)
+    else:
+        fcpo_data_raw=df
 
+    fcpo_data_raw=fcpo_data_raw[fcpo_data_raw['Time']!=1805]
     fcpo_data_raw['Date']=fcpo_data_raw['Date'].apply(lambda x:str(x))
     fcpo_data_raw['Hour']=fcpo_data_raw['Time'].apply(lambda x:str(x)[0:2])
     fcpo_data_raw=fcpo_data_raw.groupby(['Date','Hour'],as_index=False).agg({'Open':lambda x: get_first_element(x),
