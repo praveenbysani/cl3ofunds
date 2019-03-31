@@ -1,8 +1,12 @@
 Backtrader::
+
 - Modify the strategy to cancel open orders at end of trading day
 - Use stop trial order types !?
+- Integration with IB platform
+
+
 ****************************************************************************************************************
-- Build a model that suits for 2017-2018 data
+* Using tsfresh library for additional features
 * Use Intraday Trend following strategies (5 min intervals) based on macd and bollinger bands
 * Use Prophet predictions as a feature
 * ichimoku analysis & generate features based on signal crossovers and trend reversals

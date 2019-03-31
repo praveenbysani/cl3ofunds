@@ -12,18 +12,21 @@ class MLStrategy(bt.Strategy):
         #get the ML prediction data
         self.dailypred= self.datas[1].open
         #use the opening price of next bar
-        self.minuteopen = self.datas[0].open
+        self.minuteopen = self.datas[0].high
         self.order_refs = list()
+        self.bracket_orders = list()
     def log(self, txt, dt=None):
         ''' Logging function fot this strategy'''
         dt = dt or self.datas[0].datetime.date(0)
-        print('%s, %s' % (dt.isoformat(), txt))
+        time = self.datas[0].datetime.time(0)
+        print('%s %s, %s' % (dt.isoformat(),time.isoformat(), txt))
     def notify_trade(self,trade):
         #if trade.isopen:
         #    self.log('{} Trade ref:{} has been opened with size:{}, price:{} and value:{}'.format(
         #                            self.datetime.time(0),trade.ref,trade.size,trade.price,trade.value))
         if trade.isclosed:
             self.log('Trade ref:{} has been closed with pnl:{}, new size:{}'.format(trade.ref,trade.pnl,trade.size))
+            self.bracket_orders.clear()
 
     def notify_order(self,order):
         '''
@@ -51,6 +54,12 @@ class MLStrategy(bt.Strategy):
         # when the orders are pending, don't execute new ones
         if len(self.order_refs)==3:
             return
+        # If the order is not closed by end of the day, forcefully close it and cancel bracket orders
+        if self.position:
+            if(self.datetime.time(0).strftime('%H%M')=='1514'):
+                    self.log("Order:{} Forecefully cancelled Due to Traindg End".format(self.bracket_orders[0].ref))
+                    self.close(self.datas[0])
+                    self.cancel(self.bracket_orders[0])
         # when the date has changed in the prediction feed indicating the new day has started
         if self.datas[1].datetime.date(-1) < self.datas[1].datetime.date(0):
             #verification of whether the feed and prediction data are aligned
@@ -66,6 +75,9 @@ class MLStrategy(bt.Strategy):
                             stop_price = self.minuteopen[0]*(1-self.params.loss_thr)
                             brackets = self.buy_bracket(limitprice=limit_price, price=exec_price, stopprice=stop_price)
                             self.order_refs = [bracket.ref for bracket in brackets]
+                            self.bracket_orders.append(brackets[1])
+                            self.log("Bracket Order Created @ {} with Order references {},{},{}".format(
+                            exec_price,self.order_refs[0],self.order_refs[1],self.order_refs[2]))
 
 class TestStrategy(bt.Strategy):
     def __init__(self):
@@ -79,8 +91,8 @@ class TestStrategy(bt.Strategy):
 
 if __name__=='__main__':
     data= btfeeds.GenericCSVData(
-                dataname='../data/dowj_data_2017_2018.csv',
-                fromdate=datetime.datetime(2017,1,1),
+                dataname='../data/dowj_data_2016_2017_2018.csv',
+                fromdate=datetime.datetime(2016,1,1),
                 todate=datetime.datetime(2019,1,1),
                 #important to adjust the time frame to Minutes from the default Daily
                 timeframe=bt.TimeFrame.Minutes,
@@ -95,8 +107,8 @@ if __name__=='__main__':
                 volume=6,
                 openinterest=-1)
     daily_data = btfeeds.GenericCSVData(
-                dataname='../data/dowj_2017_2018_preds.csv',
-                fromdate=datetime.datetime(2017,1,1),
+                dataname='../data/dowj_preds_2016_2017_2018.csv',
+                fromdate=datetime.datetime(2016,1,1),
                 todate=datetime.datetime(2019,1,1),
                 #important to adjust the time frame to Minutes from the default Daily
                 timeframe=bt.TimeFrame.Minutes,
@@ -105,8 +117,8 @@ if __name__=='__main__':
                 time=-1,
                 open=1,
                 high=2,
-                low=-1,
-                close=-1,
+                low=3,
+                close=4,
                 volume=-1,
                 openinterest=-1)
     ## disable plotting of the ML predictions
@@ -121,13 +133,13 @@ if __name__=='__main__':
     #add different analyzers
     #cerebro.addanalyzer(btanalyzers.SharpeRatio, _name='sharpe')
     cerebro.addanalyzer(btanalyzers.DrawDown,fund=False,_name='drawdown')
-    #cerebro.addanalyzer(btanalyzers.TradeAnalyzer,_name='trade_analyzer')
+    cerebro.addanalyzer(btanalyzers.TradeAnalyzer,_name='trade_analyzer')
     #cerebro.addanalyzer(btanalyzers.PeriodStats,_name='period_stats')
     strats_run=cerebro.run()
     ml_strat =strats_run[0]
     print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
-    #print(ml_strat.analyzers.trade_analyzer.print())
-    print(ml_strat.analyzers.drawdown.print())
+    print(ml_strat.analyzers.trade_analyzer.pprint())
+    print(ml_strat.analyzers.drawdown.pprint())
     #print(ml_strat.analyzers.sharpe.print())
     #print(ml_strat.analyzers.period_stats.print())
     cerebro.plot(volume=False)

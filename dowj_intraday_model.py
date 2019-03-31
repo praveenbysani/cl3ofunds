@@ -89,23 +89,19 @@ if __name__=='__main__':
     lookout_config=1 #including current day
     profit_thr_pct=0.5
     loss_thr_pct=profit_thr_pct*2
-    train_start='2011-01-01'
-    train_end='2016-12-31'
-    test_start='2017-01-01'
+    train_start='2005-01-01'
+    train_end='2015-12-31'
+    test_start='2016-01-01'
     test_end='2019-01-01'
     commission_price=0
     num_units=1
-    initial_book_value=100000
+    initial_book_value=30000
 
 
     #nasdaq_data=pd.read_csv('data/mini_nasdaq.txt')
     dowj_data = pd.read_csv('data/mini_dowj.txt')
-    #fcpo_data = pd.read_csv('data/FCPO_2007-2017_backadjusted.csv')
 
     dowj_data=filter_inactive_hours(dowj_data)
-    #dowj_data[(dowj_data['Date'] > 20170101) & (dowj_data['Date'] < 20190101)].to_csv('data/dowj_data_2017_2018.csv',index=False)
-    dowj_data[dowj_data['Time']==906]['Date'].nunique()
-
     dowj_daily_data=transform_minute_to_daily_df(csv_file=None,df=dowj_data)
     dowj_daily_df=prepare_daily_data(dowj_daily_data,long_spread_thr=profit_thr_pct,
                                         short_spread_thr=profit_thr_pct,lookup_period=lookout_config)
@@ -116,8 +112,7 @@ if __name__=='__main__':
     dowj_nadjusted_feats=dowj_daily_tind.merge(dowj_daily_cdlind,left_index=True,right_index=True)
 
 
-    dowj_daily_df.groupby(dowj_daily_df.index.year).agg({'lprofit_ind':'mean','sprofit_ind':'mean','long_spread':'median'})
-    #dowj_daily_df[dowj_daily_df.index.year> 2016].groupby(['lprofit_ind','sprofit_ind']).agg({'long_spread':'count'})
+    #dowj_daily_df.groupby(dowj_daily_df.index.year).agg({'lprofit_ind':'mean','sprofit_ind':'mean','long_spread':'median'})
 
 
     lprofit_rsearch,lprofit_test_proba,lprofit_test_predlabels,lprofit_testdata,lprofit_testlabels=build_best_model(
@@ -127,12 +122,9 @@ if __name__=='__main__':
     ## lower the prediction threshold to retain the top 10% labels
     #lprofit_test_predlabels=derive_classification_labels(lprofit_test_proba,90)
     #sprofit_test_predlabels=derive_classification_labels(sprofit_test_proba,90)
-    #roc_auc_score(sprofit_testlabels,sprofit_test_proba[:,1])
-    #roc_auc_score(lprofit_testlabels,lprofit_test_proba[:,1])
-    #sprofit_testlabels.value_counts()
+    roc_auc_score(sprofit_testlabels,sprofit_test_proba[:,1])
+    roc_auc_score(lprofit_testlabels,lprofit_test_proba[:,1])
 
-    #lprofit_testlabels.index.date
-    #lprofit_rsearch.best_estimator_
     dowj_eval_df=dowj_daily_df[['Open',
                     'next_nhigh','next_nlow','next_nclose',
                     'lprofit_ind','sprofit_ind']].merge(
@@ -155,8 +147,10 @@ if __name__=='__main__':
     lprofit_mdd=max_drawdown(dowj_eval_df['cummulative_lprofit_returns'])
 
     plt.figure(figsize=(15,10))
-    dowj_eval_df['2017-01-01':'2019-10-01']['cummulative_sprofit_returns'].plot()
-    dowj_eval_df['2017-01-01':'2019-10-01']['cummulative_lprofit_returns'].plot()
+    dowj_eval_df['2016-01-01':'2019-01-01']['cummulative_sprofit_returns'].plot()
+    dowj_eval_df['2016-01-01':'2019-01-01']['cummulative_lprofit_returns'].plot()
+    #dowj_daily_data['201-01-01':'2018-01-01']['Close'].plot()
     plt.legend(['short_model','long_model'])
-
-    #dowj_eval_df[['lprofit_prediction','sprofit_prediction']].to_csv('data/dowj_2017_2018_preds.csv')
+    plt.savefig('dowj_2016_2017_2018_10yrs.jpeg')
+    #dowj_data[(dowj_data['Date'] > 20160101) & (dowj_data['Date'] < 20190101)].to_csv('data/dowj_data_2016_2017_2018.csv',index=False)
+    #dowj_eval_df[['lprofit_prediction','lprofit_ind','sprofit_prediction','sprofit_ind']].to_csv('data/dowj_preds_2016_2017_2018.csv')
