@@ -10,9 +10,9 @@ class MLStrategy(bt.Strategy):
                 ('loss_thr',0.01),)
     def __init__(self):
         #get the ML prediction data
-        self.dailypred= self.datas[1].open
+        self.dailypred= self.datas[1].high
         #use the opening price of next bar
-        self.minuteopen = self.datas[0].high
+        self.minuteopen = self.datas[0].open
         self.order_refs = list()
         self.bracket_orders = list()
     def log(self, txt, dt=None):
