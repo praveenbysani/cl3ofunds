@@ -28,6 +28,10 @@ from backtesting_utils import calculate_long_returns
 from backtesting_utils import calculate_short_returns
 from backtesting_utils import max_drawdown
 
+from hyperopt import tpe,fmin, hp, Trials
+from hyperopt.pyll import scope as ho_scope
+from hyperopt.pyll.stochastic import sample as ho_sample
+from functools import partial
 
 def build_modeling_data(fcpo_data_daily,fcpo_feats,target_label='lprofit_ind',
                         train_start='2015-01-01',train_end='2017-12-31',test_start='2018-01-01',test_end='2018-10-01'):
@@ -53,6 +57,45 @@ def derive_classification_labels(x,threshold=85):
     clf_thr=np.percentile(x[:,1],q=threshold)
     clf_labels=list(map(lambda x: 1 if x > clf_thr else 0, x[:,1]))
     return clf_labels
+
+def build_hopt_ml_model(args,traindata,trainlabels):
+    xgb_model = xgboost.XGBClassifier(**args,random_state=333)
+    fcpo_tsplit=TimeSeriesSplit(n_splits=3)
+    cv_score=cross_val_score(xgb_model,traindata,trainlabels,cv=fcpo_tsplit,scoring='roc_auc')
+    return -cv_score.mean()
+
+def optimized_ml_model():
+    dowj_data = pd.read_csv('data/mini_dowj.txt')
+
+    dowj_data=filter_inactive_hours(dowj_data)
+    dowj_daily_data=transform_minute_to_daily_df(csv_file=None,df=dowj_data)
+    dowj_daily_df=prepare_daily_data(dowj_daily_data,long_spread_thr=profit_thr_pct,
+                                        short_spread_thr=profit_thr_pct,lookup_period=lookout_config)
+    dowj_daily_tind=generate_tech_ind(dowj_daily_df[['Open','High','Low','Close','Volume']].shift(1))
+    dowj_daily_cdlind=generate_candlestick_ind(dowj_daily_df[['Open','High','Low','Close']].shift(1))
+    dowj_nadjusted_feats=dowj_daily_tind.merge(dowj_daily_cdlind,left_index=True,right_index=True)
+
+    train_start='2015-01-01'
+    train_end='2017-12-31'
+    test_start='2018-01-01'
+    test_end='2019-01-01'
+
+    traindata,trainlabels,testdata,testlabels=build_modeling_data(
+                            dowj_daily_df,dowj_nadjusted_feats,'lprofit_ind',train_start,train_end,test_start,test_end)
+
+    hp_space = {
+        'n_estimators': ho_scope.int(hp.quniform('n_estimators', low=200, high=500, q=25)),
+        'max_depth' : ho_scope.int(hp.quniform('max_depth',low=5,high=20,q=5)),
+        'learning_rate' : hp.quniform('learning_rate',low=0.01,high=0.1,q=0.05),
+        'gamma' : hp.quniform('gamma',low=0,high=0.1,q=0.05),
+        'subsample' : hp.quniform('subsample',low=0.5,high=1,q=0.1),
+        }
+    trials=Trials()
+
+
+    build_hopt_ml_model_wdata=partial(build_hopt_ml_model,traindata=traindata,trainlabels=trainlabels)
+    best_ml_clf=fmin(build_hopt_ml_model_wdata,hp_space,algo=tpe.suggest,max_evals=100)
+
 
 def build_best_model(fcpo_daily,fcpo_feats,profit_ind='lprofit_ind',n_iter=250,
                         train_start='2011-01-01',train_end='2016-12-31',test_start='2017-01-01',test_end='2018-01-01'):

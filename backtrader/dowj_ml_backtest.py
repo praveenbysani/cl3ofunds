@@ -10,7 +10,7 @@ class MLStrategy(bt.Strategy):
                 ('loss_thr',0.01),)
     def __init__(self):
         #get the ML prediction data
-        self.dailypred= self.datas[1].high
+        self.dailypred= self.datas[1].open
         #use the opening price of next bar
         self.minuteopen = self.datas[0].open
         self.order_refs = list()
@@ -92,7 +92,7 @@ class TestStrategy(bt.Strategy):
 if __name__=='__main__':
     data= btfeeds.GenericCSVData(
                 dataname='../data/dowj_data_2016_2017_2018.csv',
-                fromdate=datetime.datetime(2016,1,1),
+                fromdate=datetime.datetime(2018,1,1),
                 todate=datetime.datetime(2019,1,1),
                 #important to adjust the time frame to Minutes from the default Daily
                 timeframe=bt.TimeFrame.Minutes,
@@ -108,7 +108,7 @@ if __name__=='__main__':
                 openinterest=-1)
     daily_data = btfeeds.GenericCSVData(
                 dataname='../data/dowj_preds_2016_2017_2018.csv',
-                fromdate=datetime.datetime(2016,1,1),
+                fromdate=datetime.datetime(2018,1,1),
                 todate=datetime.datetime(2019,1,1),
                 #important to adjust the time frame to Minutes from the default Daily
                 timeframe=bt.TimeFrame.Minutes,
@@ -124,14 +124,14 @@ if __name__=='__main__':
     ## disable plotting of the ML predictions
     daily_data.plotinfo.plot=False
     cerebro = bt.Cerebro()
-    cerebro.broker.setcash(50000)
+    cerebro.broker.setcash(30000)
     cerebro.adddata(data)
     cerebro.adddata(daily_data)
     cerebro.addstrategy(MLStrategy)
     #cerebro.addstrategy(TestStrategy)
-    cerebro.addsizer(bt.sizers.FixedSize,stake=1)
+    cerebro.addsizer(bt.sizers.FixedSize,stake=5)
     #add different analyzers
-    #cerebro.addanalyzer(btanalyzers.SharpeRatio, _name='sharpe')
+    cerebro.addanalyzer(btanalyzers.SharpeRatio, _name='sharpe')
     cerebro.addanalyzer(btanalyzers.DrawDown,fund=False,_name='drawdown')
     cerebro.addanalyzer(btanalyzers.TradeAnalyzer,_name='trade_analyzer')
     #cerebro.addanalyzer(btanalyzers.PeriodStats,_name='period_stats')
@@ -140,6 +140,5 @@ if __name__=='__main__':
     print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
     print(ml_strat.analyzers.trade_analyzer.pprint())
     print(ml_strat.analyzers.drawdown.pprint())
-    #print(ml_strat.analyzers.sharpe.print())
-    #print(ml_strat.analyzers.period_stats.print())
+    #print(ml_strat.analyzers.sharpe.get_analysis())
     cerebro.plot(volume=False)

@@ -1,15 +1,18 @@
 Backtrader::
 
-- Modify the strategy to cancel open orders at end of trading day
+[Done] Modify the strategy to cancel open orders at end of trading day
+[Done] Added trade analyzers to compute evaluation metrics
 - Use stop trial order types !?
 - Integration with IB platform
 
-
 ****************************************************************************************************************
+
+* Using optimization libraries to find constrained optimal parameters of a strategy
 * Using tsfresh library for additional features
 * Use Intraday Trend following strategies (5 min intervals) based on macd and bollinger bands
 * Use Prophet predictions as a feature
 * ichimoku analysis & generate features based on signal crossovers and trend reversals
+
 
 ================================================================================================================
 [Done] Reframe the problem as Regression to predict the (long_spread)-(short_spread) difference
