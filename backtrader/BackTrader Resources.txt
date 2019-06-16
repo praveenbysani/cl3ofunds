@@ -1,0 +1,32 @@
+BackTrader Resources
+====================
+[Order Execution]
+https://www.backtrader.com/docu/order.html
+https://www.backtrader.com/docu/order-creation-execution/order-creation-execution.html
+[One Cancel Other Orders]
+https://www.backtrader.com/docu/order-creation-execution/oco/oco.html
+[Bracket Orders] to execute an order along with high side and low side
+https://www.backtrader.com/docu/order-creation-execution/bracket/bracket.html
+[Cancel Bracket Orders after holding period]
+https://www.backtrader.com/blog/posts/2017-04-09-multi-example/multi-example.html
+https://www.backtrader.com/blog/posts/2018-02-01-stop-trading/stop-trading.html
+
+[Feeds with Multiple Timeframes]
+https://www.backtrader.com/blog/posts/2015-08-23-data-resampling/data-resampling.html
+https://www.backtrader.com/docu/mixing-timeframes/indicators-mixing-timeframes.html
+
+[Optimization]
+https://www.backtrader.com/docu/optimization-improvements.html
+
+Evaluating external historical performance
+- adding external orders (ML/ manual orders)
+https://www.backtrader.com/blog/posts/2017-07-05-order-history/order-history.html
+
+Live Data/Trading
+https://www.backtrader.com/blog/posts/2016-06-21-livedata-feed/live-data-feed.html
+https://medium.com/@danjrod/interactive-brokers-in-python-with-backtrader-23dea376b2fc
+
+
+Strategies and ML
+https://www.quantopian.com/posts/machine-learning-on-quantopian-part-3-building-an-algorithm
+https://community.backtrader.com/topic/122/bband-strategy

@@ -1,0 +1,45 @@
+###################model duration(secs):220.104272##################################
+train_start:2014-01-01, train_end:2016-12-31, test_start:2017-01-01, test_end:2017-12-31
+
+Short Model CV AUC::0.44
+Short Model:: XGB precision : 0.5, recall: 0.49 auc: 0.59
+Short Model Final Return:64069.50000000019, and Draw Down::64721.0,35321.38,0.45
+
+
+Long Model CV AUC::0.5
+Long Model:: XGB precision : 0.44, recall: 0.26 auc: 0.54
+Long Model Final Return:2664.1249999998035, and Draw Down::18559.37,-11554.63,1.62
+###################model duration(secs):307.220929##################################
+train_start:2014-01-01, train_end:2017-12-31, test_start:2018-01-01, test_end:2018-10-01
+
+Short Model CV AUC::0.56
+Short Model:: XGB precision : 0.35, recall: 0.7 auc: 0.37
+Short Model Final Return:28000.625000000175, and Draw Down::33119.38,16634.38,0.5
+
+
+Long Model CV AUC::0.54
+Long Model:: XGB precision : 0.29, recall: 0.04 auc: 0.42
+Long Model Final Return:7520.624999999989, and Draw Down::11271.25,7520.62,0.33
+###################model duration(secs):240.399629##################################
+train_start:2015-01-01, train_end:2017-12-31, test_start:2018-01-01, test_end:2018-10-01
+
+Short Model CV AUC::0.51
+Short Model:: XGB precision : 0.38, recall: 0.75 auc: 0.5
+Short Model Final Return:37844.37500000019, and Draw Down::32387.5,15902.5,0.51
+
+
+Long Model CV AUC::0.52
+Long Model:: XGB precision : 0.34, recall: 0.75 auc: 0.62
+Long Model Final Return:23323.1249999998, and Draw Down::23060.75,5896.87,0.74
+
+################### model duration(secs):304.552692 ##################################
+train_start:2014-01-01, train_end:2017-12-31, test_start:2018-01-01, test_end:2018-10-01
+
+Short Model CV AUC::0.56
+Short Model:: XGB precision : 0.35, recall: 0.7 auc: 0.37
+Short Model Final Return:28000.625000000175, and Draw Down::33119.38,16634.38,0.5
+
+
+Long Model CV AUC::0.54
+Long Model:: XGB precision : 0.29, recall: 0.04 auc: 0.42
+Long Model Final Return:7520.624999999989, and Draw Down::11271.25,7520.62,0.33
