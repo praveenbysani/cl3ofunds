@@ -1,8 +1,7 @@
 CL3O Funds Tasks
 ================
 - Build a model that suits for 2017-2018 data
--- use the previous day return as a feature
--- use feature selection methods to remove highly correlated features
+[Done] Build a Multi-Step time forecasting model using LSTM
 [Done] Reframe the problem as Regression to predict the (long_spread)-(short_spread) difference
 [Done] Use LSTM models to get pointwise, full sequence and multiple sequence predictions (volatility)
 [Done] Modify functions to parametrize the model to run on configurable number of lookout period

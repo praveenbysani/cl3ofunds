@@ -230,6 +230,14 @@ finally:
     plt.plot(predicted[33], color='blue', label = 'Predicted data')
     plt.legend(loc='best')
     plt.show()
+
+    plt.figure(figsize=(10,10))
+    plt.plot(history.history['acc'],label='loss')
+    plt.plot(history.history['val_acc'],label='val_loss')
+    plt.legend()
+    plt.show()
+
+
     print( np.mean(np.square(predicted - original)))
     print (np.mean(np.abs(predicted - original)))
     print( np.mean(np.abs((original - predicted) / original)))
